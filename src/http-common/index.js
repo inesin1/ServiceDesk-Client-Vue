@@ -6,7 +6,7 @@ let HTTP = axios.create();
 export default {
   updateOptions() {
     HTTP = axios.create({
-      baseURL: `http://94.24.237.230:7171/api/`,
+      baseURL: `http://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/`,
       headers: {
         Authorization: `Bearer ${store.state.user.token}`
       }
@@ -55,6 +55,16 @@ export default {
     return HTTP.get(`statuses/${id}`).then(res => res.data);
   },
 
+  // Создает статус
+  postStatus(status) {
+    return HTTP.post(`statuses`, status).then(res => res.data);
+  },
+
+  // Удаляет статус по id
+  deleteStatus(id) {
+    return HTTP.delete(`statuses/${id}`).then(res => res.data);
+  },
+
   // Возвращает приоритеты
   getPriorities() {
     return HTTP.get(`priorities`).then(res => res.data);
@@ -63,6 +73,16 @@ export default {
   // Возвращает приоритет по id
   getPriority(id) {
     return HTTP.get(`priorities/${id}`).then(res => res.data);
+  },
+
+  // Создает приоритет
+  postPriority(priority) {
+    return HTTP.post(`priorities`, priority).then(res => res.data);
+  },
+
+  // Удаляет приоритет по id
+  deletePriority(id) {
+    return HTTP.delete(`priorities/${id}`).then(res => res.data);
   },
 
   // Возвращает пользователей
@@ -80,6 +100,15 @@ export default {
     return HTTP.get(`users/current`).then(res => res.data);
   },
 
+  postUser(user) {
+    return HTTP.post(`users`, user).then(res => res.data)
+  },
+
+  // Удаляет пользователя по id
+  deleteUser(id) {
+    return HTTP.delete(`users/${id}`).then(res => res.data);
+  },
+
   // Возвращает роли
   getRoles() {
     return HTTP.get(`roles`).then(res => res.data);
@@ -88,6 +117,16 @@ export default {
   // Возвращает роль по id
   getRole(id) {
     return HTTP.get(`roles/${id}`).then(res => res.data);
+  },
+
+  // Создает роль
+  postRole(role) {
+    return HTTP.post(`roles`, role).then(res => res.data);
+  },
+
+  // Удаляет роль по id
+  deleteRole(id) {
+    return HTTP.delete(`roles/${id}`).then(res => res.data);
   },
 
   // Возвращает подразделения
@@ -100,6 +139,16 @@ export default {
     return HTTP.get(`divisions/${id}`).then(res => res.data);
   },
 
+  // Создает подразделение
+  postDivision(division) {
+    return HTTP.post(`divisions`, division).then(res => res.data);
+  },
+
+  // Удаляет подразделение по id
+  deleteDivision(id) {
+    return HTTP.delete(`divisions/${id}`).then(res => res.data);
+  },
+
   // Возвращает отделения
   getDepartments() {
     return HTTP.get(`departments`).then(res => res.data);
@@ -108,6 +157,16 @@ export default {
   // Возвращает отделение по id
   getDepartment(id) {
     return HTTP.get(`departments/${id}`).then(res => res.data);
+  },
+
+  // Создает отделение
+  postDepartment(department) {
+    return HTTP.post(`departments`, department).then(res => res.data);
+  },
+
+  // Удаляет отделение по id
+  deleteDepartment(id) {
+    return HTTP.delete(`departments/${id}`).then(res => res.data);
   },
   
   // Возвращает категории проблем
@@ -118,5 +177,15 @@ export default {
   // Возвращает категорию проблемы по id
   getProblemCategory(id) {
     return HTTP.get(`problemCategories/${id}`).then(res => res.data);
+  },
+
+  // Создает категорию проблемы
+  postProblemCategory(problemCategory) {
+    return HTTP.post(`problemCategories`, problemCategory).then(res => res.data);
+  },
+
+  // Удаляет категорию проблемы по id
+  deleteProblemCategory(id) {
+    return HTTP.delete(`problemCategories/${id}`).then(res => res.data);
   }
 }

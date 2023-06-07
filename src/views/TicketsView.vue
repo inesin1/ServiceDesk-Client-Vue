@@ -66,7 +66,7 @@
                 class="my4"
             ></w-select>
             
-            <w-textarea v-model="createTicketDialog.details">Что случилось?</w-textarea>
+            <w-textarea v-model="createTicketDialog.form.details">Что случилось?</w-textarea>
         </w-form>
         
         <template #actions>
@@ -141,10 +141,10 @@ export default {
           id: ticket.id,
           category: (await httpCommon.getProblemCategory(ticket.categoryId)).name,
           creator: (await httpCommon.getUser(ticket.creatorId)).name,
-          executor: ticket.executorId !== undefined ? (await httpCommon.getUser(ticket.executorId)).name : '-',
+          executor: ticket.executorId !== undefined ? (await httpCommon.getUser(ticket.executorId)).name : 'Не назначен',
           create_date: this.formatDateTime(ticket.createDate),
           close_date: ticket.closeDate !== undefined ? this.formatDateTime(ticket.closeDate) : '-',
-          time_limit: `${ticket.timeLimit} минут`,
+          time_limit: this.formatDateTime(ticket.timeLimit),
           status: (await httpCommon.getStatus(ticket.statusId)).name
         });
       }
@@ -157,14 +157,6 @@ export default {
     addNull(num) {
       return num < 10 ? `0${num}` : num
     },
-    
-    // Форматирует минуты в удобноый вид (часы, дни и тд)
-/*    formatMinutes(minutes) {
-      switch (minutes) {
-        case minutes < 60: return `${minutes} минут`; break;
-        case minutes > 60: return `${minutes/60} часов`; break;
-      }
-    },*/
     
     // Вызывается при успешной проверке формы
     onSuccess () {

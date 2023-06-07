@@ -19,11 +19,22 @@ export default createStore({
     },
     getCurrentUser(state) {
       return state.user;
+    },
+    getUserRole(state) {
+      return state.user.role;
     }
   },
   mutations: {
     setUser(state, user) {
       state.user = user;
+    },
+    logout(state) {
+      state.user = {
+        id: null,
+        name: null,
+        role: null,
+        token: null
+      };
     }
   },
   actions: {

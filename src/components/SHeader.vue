@@ -15,8 +15,8 @@
                         {{$store.state.user.name}}
                     </w-button>
                 </template>
-                <w-button text>Профиль</w-button>
-                <w-button text>Выход</w-button>
+                <w-button text @click="$router.push('/profile/' + $store.getters.getCurrentUser.id)" >Профиль</w-button>
+                <w-button text @click="$store.commit('logout')">Выход</w-button>
             </w-menu>
         </w-toolbar>
     </header>

@@ -1,7 +1,7 @@
 <template>
     <s-header/>
     <w-flex grow>
-        <s-aside class="sm-hide"/>
+        <s-aside class="sm-hide" v-if="store.getters.isAuthenticated"/>
         <main class="grow">
             <router-view v-if="$store.getters.isAuthenticated"></router-view>
             <auth-view v-else/>
@@ -21,12 +21,14 @@ import AuthView from "@/views/AuthView.vue";
 import store from "@/store";
 import httpCommon from "@/http-common";
 export default {
-  data: () => ({
-  
-  }),
+  computed: {
+    store() {
+      return store
+    }
+  },
   components: {AuthView},
   created() {
-    store.commit('setUser', {id:1, name: 'admin', role: 3, token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJteUFwcCIsImlzcyI6Im15QXBwIiwiaWQiOjF9.CABQOGsBBVAnJPMgbh4rdahnUVZFV6iZUY7tN7uzs1U'});
+    //store.commit('setUser', {id:1, name: 'admin', role: 3, token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJteUFwcCIsImlzcyI6Im15QXBwIiwiaWQiOjF9.CABQOGsBBVAnJPMgbh4rdahnUVZFV6iZUY7tN7uzs1U'});
     httpCommon.updateOptions();
   }
 }

@@ -84,9 +84,12 @@ export default {
   
   methods: {
     onSuccess () {
-      setTimeout(() => (this.form.sent = true), 2000);
+      this.form.sent = true;
+      setTimeout(() => {
         http.postAuth(this.authData)
-            .then(response => {store.commit('setUser', response.data); http.updateOptions()});
+            .then(response => { store.commit('setUser', response); http.updateOptions();});
+      }, 2000);
+
     },
     onValidate () {
       this.form.sent = false
