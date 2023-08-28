@@ -100,8 +100,26 @@ export default {
     return HTTP.get(`users/current`).then(res => res.data);
   },
 
+  // Возвращает ИТ-специалистов и администраторов
+  getUsersIT() {
+    return HTTP.get(`users/it`).then(res => res.data);
+  },
+
+  // Создает пользователя
   postUser(user) {
     return HTTP.post(`users`, user).then(res => res.data)
+  },
+
+  // Редактирует пользователя
+  putUser(id, user) {
+    return HTTP.put(`users/${id}`, user).then(res => res.data)
+  },
+
+  // Загружает пользоваталей из файла
+  uploadUsers(file, rewrite) {
+    const formData = new FormData()
+    formData.append('file', file[0].file)
+    return HTTP.post(`users/upload?rewrite=${rewrite}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
   },
 
   // Удаляет пользователя по id
@@ -187,5 +205,15 @@ export default {
   // Удаляет категорию проблемы по id
   deleteProblemCategory(id) {
     return HTTP.delete(`problemCategories/${id}`).then(res => res.data);
+  },
+
+  // Возвращает комментарии к заявке
+  getCommentsForTicket(ticketId) {
+    return HTTP.get(`comments/ticket/${ticketId}`).then(res => res.data);
+  },
+
+  // Создает комментарий
+  postComment(comment) {
+    return HTTP.post(`comments`, comment).then(res => res.data);
   }
 }

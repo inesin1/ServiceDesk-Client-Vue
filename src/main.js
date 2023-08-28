@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import WaveUI from 'wave-ui'
-import 'wave-ui/dist/wave-ui.css'
+import WaveUI from 'wave-ui/src/wave-ui'
 import router from './router'
 import store from './store'
 import components from '@/components';
@@ -13,7 +12,7 @@ components.forEach(c => {
 })
 
 app
-    .use(WaveUI, {theme: 'dark'})
+    .use(WaveUI, {theme: 'auto'})
     .use(store)
     .use(router)
     .mount('#app')

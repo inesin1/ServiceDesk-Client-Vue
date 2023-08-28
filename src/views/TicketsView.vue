@@ -1,7 +1,7 @@
 <template>
     <w-card
             title="Заявки"
-            bg-color="grey-dark6"
+            bg-color="base-bg-color"
             class="ma4">
         <w-button
             class="mb4"
@@ -14,6 +14,8 @@
                 selectable-rows="1"
                 @row-select="$router.push({name: 'ticketId', params: { id: $event.item.id }})"
                 fixed-headers
+                style="height: 500px"
+                v-model:sort="table.sort"
                 mobile-breakpoint="700">
             <template #no-data>
                 <w-flex justify-center>
@@ -102,7 +104,8 @@ export default {
         {label: 'Срок', key: 'time_limit'},
         {label: 'Статус', key: 'status'}
       ],
-      items: []
+      items: [],
+      sort: '+status'
     },
     
     // Диалоговое окно создания заявки

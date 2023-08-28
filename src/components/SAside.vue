@@ -1,8 +1,11 @@
 <template>
-  <w-toolbar bg-color="grey-dark6" vertical class="pa0">
+  <w-toolbar bg-color="base-bg-color" vertical class="pa0">
     <s-aside-button
-        router-link="/tickets"
-        v-if="userRole == 1 || userRole == 2 || userRole == 3">
+        router-link="/news">
+      Новости
+    </s-aside-button>
+    <s-aside-button
+        router-link="/tickets">
       Заявки
     </s-aside-button>
     <s-aside-button
@@ -34,7 +37,11 @@
     <div class="spacer"></div>
     <w-divider ></w-divider>
 
-    <s-aside-button>Контакты</s-aside-button>
+    <s-aside-button
+      router-link="/contacts"
+    >
+      Контакты
+    </s-aside-button>
   </w-toolbar>
 </template>
 

@@ -1,37 +1,60 @@
 <template>
     <w-card
+        v-if="!this.loading"
         :title="'Заявка №' + this.ticket.id"
-        bg-color="grey-dark6"
+        bg-color="base-bg-color"
         class="ma4">
         <w-flex column gap="4">
-          <w-button
-              v-if="ticket.executor === null && $store.getters.getUserRole == 2"
-              bg-color="success"
-              class="align-self-start"
-              @click="setExecutor($store.getters.getCurrentUser.id)">
-            Принять в работу
-          </w-button>
 
-          <div
-              v-else-if="$store.getters.getUserRole == 3"
-              class="w-flex row gap2">
-            <w-select
-                :items="executorSelect.items"
-                @item-select="executorSelect.selection = $event.value"
-            ></w-select>
+          <!--Панель управления-->
+          <w-flex gap="4">
+            <w-button
+                v-if="ticket.executor === null && $store.getters.getUserRole == 2"
+                bg-color="success"
+                class="align-self-start"
+                @click="setExecutor($store.getters.getCurrentUser.id)">
+              Принять в работу
+            </w-button>
+
+            <div
+                v-else-if="$store.getters.getUserRole == 3"
+                class="w-flex row gap2">
+              <w-select
+                  :items="executorSelect.items"
+                  @item-select="executorSelect.selection = $event.value"
+              ></w-select>
+
+              <w-button
+                  bg-color="primary"
+                  @click="setExecutor(executorSelect.selection)"
+              >
+                Назначить исполнителя
+              </w-button>
+            </div>
 
             <w-button
-                bg-color="success"
-                @click="setExecutor(executorSelect.selection)"
+                v-if="ticket.statusId == 3 && ticket.executorId == $store.getters.getCurrentUser.id && $store.getters.getUserRole != 1"
+              bg-color="success"
+              @click="closeTicket"
             >
-              Назначить исполнителя
+              Выполнено
             </w-button>
-          </div>
+          </w-flex>
 
           <w-divider/>
             
             <w-flex gap="4">
                 <div class="w-flex column xs6 gap4">
+<!--                  <s-select-field
+                      title="Статус"
+                      :items="statusSelect.items"
+                      :selection="statusSelect.selection"
+                      @item-select="statusSelect.selection = $event"
+                  />-->
+                  <s-text-field
+                      title="Статус"
+                      :body="ticket.status"
+                  />
                     <s-text-field
                             title="Создатель"
                             :body="ticket.creator"
@@ -78,25 +101,54 @@
                 />
             </div>
 
-<!--          <w-divider/>
+          <w-divider/>
 
           <div class="w-flex column gap4">
             <div class="title3">Комментарии</div>
 
-          </div>-->
+            <w-flex column gap="4">
+              <s-comment
+                  v-for="comment of comments.list"
+                  :key="comment.id"
+
+                  :userId="comment.userId"
+                  :text="comment.text"
+                  :date="formatDateTime(comment.createDate)"
+              />
+            </w-flex>
+
+            <w-divider/>
+
+            <w-flex column gap="4">
+              <w-textarea
+                  v-model="comments.newComment"
+                  outline
+                  inner-icon-left="mdi mdi-email">
+              </w-textarea>
+
+              <w-button class="align-self-start" @click="createComment()">
+                Отправить
+              </w-button>
+            </w-flex>
+          </div>
         </w-flex>
     </w-card>
 
-  <w-spinner v-if="this.loading" bounce/>
+  <w-flex v-else justify-center class="mt4">
+    <w-spinner bounce/>
+  </w-flex>
 </template>
 
 <script>
 
 import httpCommon from "@/http-common";
 import router from "@/router";
+import SComment from "@/components/SComment.vue";
+import store from "@/store";
 
 export default {
   name: "TicketIdView",
+  components: {SComment},
   data: function() {
     return {
       loading: false,
@@ -114,6 +166,14 @@ export default {
       executorSelect: {
         items: [],
         selection: null
+      },
+      statusSelect: {
+        items: [],
+        selection: null
+      },
+      comments: {
+        list: [],
+        newComment: null,
       }
     }
   },
@@ -130,18 +190,52 @@ export default {
           {status: (await httpCommon.getStatus(ticketData.statusId)).name},
           {category: (await httpCommon.getProblemCategory(ticketData.categoryId)).name},
       );
+      this.statusSelect.selection = ticketData.statusId;
 
       this.loading = false;
     },
 
     loadExecutors() {
-      httpCommon.getUsers().then(users => {
-        users.filter(user => user.roleId == 2).forEach(e => this.executorSelect.items.push({ label: e.name, value: e.id }))
+      httpCommon.getUsersIT().then(executors => {
+        executors.forEach(e => this.executorSelect.items.push({ label: e.name, value: e.id }))
       })
     },
 
+    loadStatuses() {
+      httpCommon.getStatuses().then(statuses => statuses.forEach(status => this.statusSelect.items.push( { label: status.name, value: status.id } )))
+    },
+
+    // Загружает комментарии к заявке
+    loadComments() {
+      httpCommon.getCommentsForTicket(this.ticket.id)
+          .then(res => this.comments.list = res);
+    },
+
+    // Создает новый комментарий
+    createComment() {
+      httpCommon.postComment({
+        ticketId: this.ticket.id,
+        userId: store.getters.getCurrentUser.id,
+        text: this.comments.newComment
+      })
+          .then(res => {console.log(res); this.loadComments();})
+          .catch(error => this.$waveui.notify(`Произошла ошибка: ${error.message}`, 'error'))
+    },
+
+    // Создает системный комментарий
+    createSystemComment(text) {
+      httpCommon.postComment({
+        ticketId: this.ticket.id,
+        userId: 1,
+        text: text
+      })
+          .then(res => {console.log(res); this.loadComments();})
+          .catch(error => this.$waveui.notify(`Произошла ошибка: ${error.message}`, 'error'))
+    },
+
     formatDateTime(dateTimeObject) {
-      return `${this.addNull(dateTimeObject.time.hour)}:${this.addNull(dateTimeObject.time.minute)} ${this.addNull(dateTimeObject.date.day)}.${this.addNull(dateTimeObject.date.month)}.${this.addNull(dateTimeObject.date.year)}`
+      if (dateTimeObject !== null)
+        return `${this.addNull(dateTimeObject.time.hour)}:${this.addNull(dateTimeObject.time.minute)} ${this.addNull(dateTimeObject.date.day)}.${this.addNull(dateTimeObject.date.month)}.${this.addNull(dateTimeObject.date.year)}`
     },
     addNull(num) {
       return num < 10 ? `0${num}` : num
@@ -152,14 +246,24 @@ export default {
       httpCommon.putTicket(this.ticket.id, executorId)
         .then(async response => {
           this.$waveui.notify('Исполнитель назначен!', 'success');
-          this.ticket.executor = (await httpCommon.getUser(executorId)).name
+          setTimeout(() => this.loadTicketData(), 1000);
+          setTimeout(() => this.createSystemComment(`Назначен исполнитель: ${this.ticket.executor}`), 3000);
         })
         .catch(error => this.$waveui.notify(`Произошла ошибка: ${error.message}`, 'error'));
+    },
+    closeTicket() {
+      httpCommon.closeTicket(this.ticket.id).then(response => {
+        this.$waveui.notify('Заявка выполнена!', 'success');
+        setTimeout(() => this.loadTicketData(), 1000);
+        setTimeout(() => this.createSystemComment(`Статус заявки изменен на: ${this.ticket.status}`), 3000);
+      });
     }
   },
   async created() {
     await this.loadTicketData();
+    this.loadComments();
     this.loadExecutors();
+    this.loadStatuses();
   }
 }
 </script>
