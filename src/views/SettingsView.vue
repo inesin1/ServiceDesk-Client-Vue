@@ -94,7 +94,7 @@ export default defineComponent({
 <template>
   <w-card
       title="Настройки"
-      bg-color="grey-dark6"
+      bg-color="base-bg-color"
       class="ma4"
   >
 

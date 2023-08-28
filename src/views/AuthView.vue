@@ -6,19 +6,11 @@
         <div class="message-box">
             <w-transition-fade>
                 <w-alert
-                  v-if="form.submitted"
-                  success
-                  no-border
-                  class="my0 text-light">
-                    Вход выполнен успешно!
-                </w-alert>
-                
-                <w-alert
-                  v-else-if="form.valid === false"
+                  v-if="form.valid === false"
                   error
                   no-border
                   class="my0 text-light">
-                    Имеются ошибки
+                    {{ form.errorMessage }}
                 </w-alert>
             </w-transition-fade>
         </div>
@@ -70,7 +62,8 @@ export default {
       valid: null,
       submitted: false,
       sent: false,
-      errorsCount: 0
+      errorsCount: 0,
+      errorMessage: 'Имеются ошибки'
     },
     validators: {
       required: value => !!value || 'Поле обязательно для заполнения',
@@ -85,11 +78,23 @@ export default {
   methods: {
     onSuccess () {
       this.form.sent = true;
-      setTimeout(() => {
-        http.postAuth(this.authData)
-            .then(response => { store.commit('setUser', response); http.updateOptions();});
-      }, 2000);
+      http.postAuth(this.authData)
+          .then(response => { store.commit('setUser', response); http.updateOptions();})
+          .catch(error => {
+            this.form.valid = false;
 
+            if (error.response) {
+              this.form.errorMessage = error.response.data
+            }
+            else if (error.request) {
+              console.log(error.request)
+            }
+            else {
+              console.log('Error', error.message)
+            }
+
+            console.log(error.config)
+          })
     },
     onValidate () {
       this.form.sent = false

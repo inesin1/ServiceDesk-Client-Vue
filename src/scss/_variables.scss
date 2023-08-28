@@ -1,0 +1,10 @@
+@import 'wave-ui/src/wave-ui/scss/_variables';
+
+:root[data-theme=light] {
+  --w-base-bg-color-rgb: 255, 255, 255; /* white */
+  --w-base-color-rgb: 0, 0, 0; /* black */
+  --w-contrast-bg-color-rgb: 0, 0, 0; /* black */
+  --w-contrast-color-rgb: 255, 255, 255; /* white */
+  --w-disabled-color-rgb: 204, 204, 204; /* #ccc */
+}
+
