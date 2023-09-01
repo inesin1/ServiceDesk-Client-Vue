@@ -3,29 +3,41 @@
             title="Заявки"
             bg-color="base-bg-color"
             class="ma4">
+      <w-flex class="mb4" row gap="2">
         <w-button
-            class="mb4"
             @click="openCreateTicketDialog">
-            Создать
+          Создать
         </w-button>
-        <w-table
-                :headers="table.headers"
-                :items="table.items"
-                selectable-rows="1"
-                @row-select="$router.push({name: 'ticketId', params: { id: $event.item.id }})"
-                fixed-headers
-                style="height: 500px"
-                v-model:sort="table.sort"
-                mobile-breakpoint="700">
-            <template #no-data>
-                <w-flex justify-center>
-                    <w-spinner bounce />
-                    <div class="align-self-center ml2">Загрузка</div>
-                </w-flex>
-            </template>
-        </w-table>
-    </w-card>
+        <w-button
+            @click="loadTickets">
+          <w-icon>mdi mdi-reload</w-icon>
+        </w-button>
 
+        <w-checkbox v-model="filter.displayClosed">Закрытые</w-checkbox>
+      </w-flex>
+
+      <w-table
+          :headers="table.headers"
+          :items="table.items"
+          selectable-rows="1"
+          @row-select="$router.push({name: 'ticketId', params: { id: $event.item.id }})"
+          fixed-headers
+          style="height: 500px"
+          v-model:sort="table.sort"
+          :filter="filter.keywordFilter(filter)"
+          mobile-breakpoint="700">
+        <template #header-label="{ label, index }">
+          <w-input outline placeholder="Поиск..." inner-icon-left="wi-search" v-model="filter.keyword[index]" class="mb2"></w-input>
+          {{ label }}
+        </template>
+        <template #no-data>
+          <w-flex justify-center>
+            <w-spinner bounce />
+            <div class="align-self-center ml2">Загрузка</div>
+          </w-flex>
+        </template>
+      </w-table>
+    </w-card>
     <w-dialog
             v-model="createTicketDialog.show"
             :fullscreen="createTicketDialog.fullscreen"
@@ -95,17 +107,44 @@ export default {
     // Таблица заявок
     table: {
       headers: [
-        {label: 'ID', key: 'id'},
-        {label: 'Категория', key: 'category'},
-        {label: 'Создатель', key: 'creator'},
-        {label: 'Исполнитель', key: 'executor'},
-        {label: 'Дата создания', key: 'create_date'},
-        {label: 'Дата закрытия', key: 'close_date'},
-        {label: 'Срок', key: 'time_limit'},
-        {label: 'Статус', key: 'status'}
+        {label: 'ID', key: 'id', sortable: false},
+        {label: 'Категория', key: 'category', sortable: false},
+        {label: 'Создатель', key: 'creator', sortable: false},
+        {label: 'Исполнитель', key: 'executor', sortable: false},
+        {label: 'Дата создания', key: 'create_date', sortable: false},
+        {label: 'Дата закрытия', key: 'close_date', sortable: false},
+        {label: 'Срок', key: 'time_limit', sortable: false},
+        {label: 'Статус', key: 'status', sortable: false}
       ],
       items: [],
-      sort: '+status'
+      sort: '-id'
+    },
+
+    // Фильтр
+    filter: {
+      displayClosed: false,
+      keyword: [],
+      keywordFilter: filter => item => {
+        if (filter.displayClosed)
+          return new RegExp(filter.keyword[1], 'i').test(item.id) &&
+              new RegExp(filter.keyword[2], 'i').test(item.category) &&
+              new RegExp(filter.keyword[3], 'i').test(item.creator) &&
+              new RegExp(filter.keyword[4], 'i').test(item.executor) &&
+              new RegExp(filter.keyword[5], 'i').test(item.create_date) &&
+              new RegExp(filter.keyword[6], 'i').test(item.close_date) &&
+              new RegExp(filter.keyword[7], 'i').test(item.time_limit) &&
+              new RegExp(filter.keyword[8], 'i').test(item.status)
+        else
+          return new RegExp(filter.keyword[1], 'i').test(item.id) &&
+              new RegExp(filter.keyword[2], 'i').test(item.category) &&
+              new RegExp(filter.keyword[3], 'i').test(item.creator) &&
+              new RegExp(filter.keyword[4], 'i').test(item.executor) &&
+              new RegExp(filter.keyword[5], 'i').test(item.create_date) &&
+              new RegExp(filter.keyword[6], 'i').test(item.close_date) &&
+              new RegExp(filter.keyword[7], 'i').test(item.time_limit) &&
+              new RegExp(filter.keyword[8], 'i').test(item.status) &&
+              item.status !== 'Закрыта'
+      }
     },
     
     // Диалоговое окно создания заявки

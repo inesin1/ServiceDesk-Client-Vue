@@ -105,6 +105,11 @@ export default {
     return HTTP.get(`users/it`).then(res => res.data);
   },
 
+  // Проверяет доступность логина
+  checkLoginAvailable(login) {
+    return HTTP.get(`users/checklogin/${login}`).then(res => res.data)
+  },
+
   // Создает пользователя
   postUser(user) {
     return HTTP.post(`users`, user).then(res => res.data)
@@ -113,6 +118,11 @@ export default {
   // Редактирует пользователя
   putUser(id, user) {
     return HTTP.put(`users/${id}`, user).then(res => res.data)
+  },
+
+  // Редактирует пользователя
+  changeUserPassword(id, password) {
+    return HTTP.put(`users/${id}/changePassword`, password).then(res => res.data)
   },
 
   // Загружает пользоваталей из файла

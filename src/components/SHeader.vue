@@ -3,7 +3,7 @@
         <w-toolbar shadow class="py2">
             <w-icon color="light-blue-dark3 mr3" size="3em">mdi mdi-help-box-multiple-outline</w-icon>
             <div class="headline">Сервис Деск</div>
-            <div class="caption align-self-center ml2">v1.2</div>
+            <div class="caption align-self-center ml2">v1.3</div>
             <div class="spacer"></div>
 
           <w-switch v-model="themeSwitch.value" class="ma4">

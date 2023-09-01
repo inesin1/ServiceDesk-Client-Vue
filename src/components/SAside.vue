@@ -1,10 +1,6 @@
 <template>
   <w-toolbar bg-color="base-bg-color" vertical class="pa0">
     <s-aside-button
-        router-link="/news">
-      Новости
-    </s-aside-button>
-    <s-aside-button
         router-link="/tickets">
       Заявки
     </s-aside-button>
@@ -36,6 +32,11 @@
 
     <div class="spacer"></div>
     <w-divider ></w-divider>
+
+    <s-aside-button
+        router-link="/news">
+      Новости
+    </s-aside-button>
 
     <s-aside-button
       router-link="/contacts"

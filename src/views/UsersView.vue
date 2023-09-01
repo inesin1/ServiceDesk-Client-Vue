@@ -8,18 +8,34 @@ export default defineComponent({
   data: () => ({
     table: {
       headers: [
-        {label: 'ID', key: 'id'},
-        {label: 'ФИО', key: 'name'},
-        {label: 'Логин', key: 'login'},
-        {label: 'Пароль', key: 'password'},
-        {label: 'Роль', key: 'role'},
-        {label: 'Отделение', key: 'department'},
-        {label: 'Номер телефона', key: 'phone_number'},
-        {label: 'Chat ID', key: 'chat_id'},
+        {label: 'ID', key: 'id', sortable: false},
+        {label: 'ФИО', key: 'name', sortable: false},
+        {label: 'Логин', key: 'login', sortable: false},
+        {label: 'Пароль', key: 'password', sortable: false},
+        {label: 'Роль', key: 'role', sortable: false},
+        {label: 'Отделение', key: 'department', sortable: false},
+        {label: 'Номер телефона', key: 'phone_number', sortable: false},
+        {label: 'Chat ID', key: 'chat_id', sortable: false},
       ],
       items: [],
+      sort: '+id',
       selection: null,
       deleteButtonDisable: true
+    },
+
+    // Фильтр
+    filter: {
+      keyword: [],
+      keywordFilter: filter => item => {
+        return new RegExp(filter.keyword[1], 'i').test(item.id) &&
+            new RegExp(filter.keyword[2], 'i').test(item.name) &&
+            new RegExp(filter.keyword[3], 'i').test(item.login) &&
+            new RegExp(filter.keyword[4], 'i').test(item.password) &&
+            new RegExp(filter.keyword[5], 'i').test(item.role) &&
+            new RegExp(filter.keyword[6], 'i').test(item.department) &&
+            new RegExp(filter.keyword[7], 'i').test(item.phone_number) &&
+            new RegExp(filter.keyword[8], 'i').test(item.tg_chat_id)
+      }
     },
 
     createUserDialog: {
@@ -36,6 +52,7 @@ export default defineComponent({
         errorsCount: 0,
         validators: {
           required: value => !!value || 'Поле обязательно для заполнения!',
+          loginAvailable: async value => (await httpCommon.checkLoginAvailable(value)) === 'ok' || 'Логин занят'
         },
         buttonLoading: false,
 
@@ -74,6 +91,7 @@ export default defineComponent({
         errorsCount: 0,
         validators: {
           required: value => !!value || 'Поле обязательно для заполнения!',
+          loginAvailable: async value => (await httpCommon.checkLoginAvailable(value)) === 'ok' || 'Логин занят'
         },
         buttonLoading: false,
 
@@ -266,18 +284,20 @@ export default defineComponent({
       bg-color="base-bg-color"
       class="ma4">
 
-    <w-flex row class="gap2">
+    <w-flex row class="gap2 mb4">
       <w-button
           bg-color="success"
-          class="mb4"
           @click="openCreateUserDialog">
         Создать
       </w-button>
       <w-button
           bg-color="success"
-          class="mb4"
           @click="openUploadUsersDialog">
         Загрузить
+      </w-button>
+      <w-button
+          @click="loadUsers">
+        <w-icon>mdi mdi-reload</w-icon>
       </w-button>
     </w-flex>
 
@@ -288,12 +308,19 @@ export default defineComponent({
         selectable-rows="1"
         @row-select="rowSelection($event)"
         fixed-headers
+        style="height: 500px"
+        :filter="filter.keywordFilter(filter)"
+        v-model:sort="table.sort"
         mobile-breakpoint="700">
       <template #no-data>
         <w-flex justify-center>
           <w-spinner bounce />
           <div class="align-self-center ml2">Загрузка</div>
         </w-flex>
+      </template>
+      <template #header-label="{ label, index }">
+        <w-input outline placeholder="Поиск..." inner-icon-left="wi-search" v-model="filter.keyword[index]" class="mb2"></w-input>
+        {{ label }}
       </template>
     </w-table>
   </w-card>
@@ -335,7 +362,7 @@ export default defineComponent({
         >
 
       <w-input v-model="createUserDialog.form.fields.name" :validators="[createUserDialog.form.validators.required]">ФИО</w-input>
-      <w-input v-model="createUserDialog.form.fields.login" :validators="[createUserDialog.form.validators.required]">Логин</w-input>
+      <w-input v-model="createUserDialog.form.fields.login" :validators="[createUserDialog.form.validators.required, createUserDialog.form.validators.loginAvailable]">Логин</w-input>
       <w-input v-model="createUserDialog.form.fields.password" :validators="[createUserDialog.form.validators.required]">Пароль</w-input>
       <w-select
           v-model="createUserDialog.form.fields.role.value"
@@ -407,7 +434,7 @@ export default defineComponent({
     >
 
       <w-input v-model="editUserDialog.user.name" :validators="[editUserDialog.form.validators.required]">ФИО</w-input>
-      <w-input v-model="editUserDialog.user.login" :validators="[editUserDialog.form.validators.required]">Логин</w-input>
+      <w-input v-model="editUserDialog.user.login" :validators="[editUserDialog.form.validators.required, editUserDialog.form.validators.loginAvailable]">Логин</w-input>
       <w-input v-model="editUserDialog.user.password" :validators="[editUserDialog.form.validators.required]">Пароль</w-input>
       <w-input v-model="editUserDialog.user.role" readonly>Роль</w-input>
       <w-input v-model="editUserDialog.user.department" readonly>Отделение</w-input>
