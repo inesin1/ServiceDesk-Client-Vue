@@ -1,22 +1,17 @@
+# Сервис Деск Frontend
+Клиентское веб-приложение на Vue.js для системы учёта и централизации заявок в IT отдел организации - Service Desk
 
-
-
-# service_desk_front
-
-## Project setup
+## Установка зависимостей
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Компиляция и запуск для разработки (поддерживает hot reload)
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Компиляция и запуск для прода
 ```
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
