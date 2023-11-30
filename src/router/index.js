@@ -7,6 +7,8 @@ import SettingsView from "@/views/SettingsView.vue";
 import ReportsView from "@/views/ReportsView.vue";
 import ContactsView from "@/views/ContactsView.vue";
 import NewsView from "@/views/NewsView.vue";
+import ComputersView from "@/views/ComputersView.vue";
+import KnowledgeView from "@/views/KnowledgeView.vue";
 
 const routes = [
   { path: '/news', name: 'news', component: NewsView },
@@ -17,6 +19,8 @@ const routes = [
   { path: '/settings', name: 'settings', component: SettingsView },
   { path: '/reports', name: 'reports', component: ReportsView },
   { path: '/contacts', name: 'contacts', component: ContactsView },
+  { path: '/computers', name: 'computers', component: ComputersView },
+  { path: '/knowledge', name: 'knowledge', component: KnowledgeView },
 ]
 
 const router = createRouter({

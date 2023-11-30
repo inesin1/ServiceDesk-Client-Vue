@@ -1,5 +1,5 @@
 import axios from "axios";
-import store from "@/store";
+import { useUserStore } from "@/stores/user";
 
 let HTTP = axios.create();
 
@@ -8,64 +8,99 @@ export default {
     HTTP = axios.create({
       baseURL: `http://${process.env.VUE_APP_BACKEND_HOST}:${process.env.VUE_APP_BACKEND_PORT}/api/`,
       headers: {
-        Authorization: `Bearer ${store.state.user.token}`
+        Authorization: `Bearer ${useUserStore().user.token}`
       }
     });
   },
   
   // Авторизирует пользователя
-  postAuth(authData) {
+  auth(authData) {
     return HTTP.post('auth', authData).then(res => res.data)
   },
   
   // Возвращает заявки
-  getTickets() {
-    return HTTP.get('tickets').then(res => res.data);
+  getTickets(offset, limit, filter) {
+    return HTTP.get(
+        'tickets',
+        {
+          params: {
+                offset: offset,
+                limit: limit,
+                ...filter
+          }
+        })
+        .then(res => res.data);
   },
-  
-  // Возвращщает заявку по id
+
+  // Возвращает количество заявок
+  getTicketsCount() {
+    return HTTP.get(`tickets/count`).then(res => res.data)
+  },
+
+  // Возвращает заявку по id
   getTicket(id) {
     return HTTP.get(`tickets/${id}`).then(res => res.data);
   },
   
   // Создает новую заявку
-  // ticket: { subject, text }
-  postTicket(ticket) {
+  // ticket: { categoryId, details }
+  createTicket(ticket) {
     return HTTP.post(`tickets`, ticket).then(res => res.data);
   },
   
   // Устанавливает исполнителя и меняет статус на "В работе"
   // ticketId - id заявки
   // executorId - id исполнителя
-  putTicket(ticketId, executorId) {
+  putTicketToWork(ticketId, executorId) {
     return HTTP.put(`tickets/${ticketId}/work/${executorId}`).then(res => res.data);
   },
-  
+
+  // Закрывает заявку
   closeTicket(ticketId) {
     return HTTP.put(`tickets/${ticketId}/close`).then(res => res.data);
   },
 
-  // Возвращает статусы
-  getStatuses() {
-    return HTTP.get(`statuses`).then(res => res.data);
+  // Возвращает статусы заявки
+  getTicketStatuses() {
+    return HTTP.get(`tickets/statuses`).then(res => res.data);
   },
 
-  // Возвращает статус по id
-  getStatus(id) {
-    return HTTP.get(`statuses/${id}`).then(res => res.data);
+  // Возвращает статус заявки
+  getTicketStatus(id) {
+    return HTTP.get(`tickets/statuses/${id}`).then(res => res.data);
   },
 
-  // Создает статус
-  postStatus(status) {
-    return HTTP.post(`statuses`, status).then(res => res.data);
+  // Создает статус заявки
+  postTicketStatus(status) {
+    return HTTP.post(`tickets/statuses`, status).then(res => res.data);
   },
 
-  // Удаляет статус по id
-  deleteStatus(id) {
-    return HTTP.delete(`statuses/${id}`).then(res => res.data);
+  // Удаляет статус заявки
+  deleteTicketStatus(id) {
+    return HTTP.delete(`tickets/statuses/${id}`).then(res => res.data);
   },
 
-  // Возвращает приоритеты
+  // Возвращает источники заявки
+  getTicketSources() {
+    return HTTP.get(`tickets/sources`).then(res => res.data);
+  },
+
+  // Возвращает источник заявки
+  getTicketSource(id) {
+    return HTTP.get(`tickets/sources/${id}`).then(res => res.data);
+  },
+
+  // Создает источник заявки
+  postTicketSource(source) {
+    return HTTP.post(`tickets/sources`, source).then(res => res.data);
+  },
+
+  // Удаляет источник заявки
+  deleteTicketSource(id) {
+    return HTTP.delete(`tickets/sources/${id}`).then(res => res.data);
+  },
+
+/*  // Возвращает приоритеты
   getPriorities() {
     return HTTP.get(`priorities`).then(res => res.data);
   },
@@ -83,26 +118,42 @@ export default {
   // Удаляет приоритет по id
   deletePriority(id) {
     return HTTP.delete(`priorities/${id}`).then(res => res.data);
-  },
+  },*/
 
   // Возвращает пользователей
-  getUsers() {
-    return HTTP.get('users').then(res => res.data);
+  getUsers(_with, offset, limit) {
+    return HTTP.get(
+        'users',
+        {
+          params: {
+            offset: offset,
+            limit: limit,
+            with: _with
+          }
+        })
+        .then(res => res.data);
   },
 
   // Возвращает пользователя по id
-  getUser(id) {
-    return HTTP.get(`users/${id}`).then(res => res.data);
+  getUser(id, _with) {
+    return HTTP.get(
+        `users/${id}`,
+        {
+          params: {
+            with: _with
+          }
+        })
+        .then(res => res.data);
   },
 
   // Возвращает текущего пользователя
-  getUserCurrent() {
+  getCurrentUser() {
     return HTTP.get(`users/current`).then(res => res.data);
   },
 
   // Возвращает ИТ-специалистов и администраторов
   getUsersIT() {
-    return HTTP.get(`users/it`).then(res => res.data);
+    return HTTP.get(`users/specialists`).then(res => res.data);
   },
 
   // Проверяет доступность логина
@@ -111,8 +162,8 @@ export default {
   },
 
   // Создает пользователя
-  postUser(user) {
-    return HTTP.post(`users`, user).then(res => res.data)
+  createUser(user) {
+    return HTTP.post(`users`, user)
   },
 
   // Редактирует пользователя
@@ -120,7 +171,7 @@ export default {
     return HTTP.put(`users/${id}`, user).then(res => res.data)
   },
 
-  // Редактирует пользователя
+  // Меняет пароль пользователю
   changeUserPassword(id, password) {
     return HTTP.put(`users/${id}/changePassword`, password).then(res => res.data)
   },
@@ -132,32 +183,33 @@ export default {
     return HTTP.post(`users/upload?rewrite=${rewrite}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
   },
 
-  // Удаляет пользователя по id
+  // Удаляет пользователя
   deleteUser(id) {
     return HTTP.delete(`users/${id}`).then(res => res.data);
   },
 
   // Возвращает роли
-  getRoles() {
-    return HTTP.get(`roles`).then(res => res.data);
+  getUserRoles() {
+    return HTTP.get(`users/roles`).then(res => res.data);
   },
 
   // Возвращает роль по id
-  getRole(id) {
-    return HTTP.get(`roles/${id}`).then(res => res.data);
+  getUserRole(id) {
+    return HTTP.get(`users/roles/${id}`).then(res => res.data);
   },
 
   // Создает роль
-  postRole(role) {
-    return HTTP.post(`roles`, role).then(res => res.data);
+  createUserRole(role) {
+    return HTTP.post(`users/roles`, role).then(res => res.data);
   },
 
-  // Удаляет роль по id
-  deleteRole(id) {
-    return HTTP.delete(`roles/${id}`).then(res => res.data);
+  // Удаляет роль
+  deleteUserRole(id) {
+    return HTTP.delete(`users/roles/${id}`).then(res => res.data);
   },
 
-  // Возвращает подразделения
+// deprecated
+/*  // Возвращает подразделения
   getDivisions() {
     return HTTP.get(`divisions`).then(res => res.data);
   },
@@ -175,7 +227,7 @@ export default {
   // Удаляет подразделение по id
   deleteDivision(id) {
     return HTTP.delete(`divisions/${id}`).then(res => res.data);
-  },
+  },*/
 
   // Возвращает отделения
   getDepartments() {
@@ -188,42 +240,42 @@ export default {
   },
 
   // Создает отделение
-  postDepartment(department) {
+  createDepartment(department) {
     return HTTP.post(`departments`, department).then(res => res.data);
   },
 
-  // Удаляет отделение по id
+  // Удаляет отделение
   deleteDepartment(id) {
     return HTTP.delete(`departments/${id}`).then(res => res.data);
   },
   
   // Возвращает категории проблем
-  getProblemCategories() {
-    return HTTP.get(`problemCategories`).then(res => res.data);
+  getTicketCategories() {
+    return HTTP.get(`tickets/categories`).then(res => res.data);
   },
   
   // Возвращает категорию проблемы по id
-  getProblemCategory(id) {
-    return HTTP.get(`problemCategories/${id}`).then(res => res.data);
+  getTicketCategory(id) {
+    return HTTP.get(`tickets/categories/${id}`).then(res => res.data);
   },
 
   // Создает категорию проблемы
-  postProblemCategory(problemCategory) {
-    return HTTP.post(`problemCategories`, problemCategory).then(res => res.data);
+  createTicketCategory(ticketCategory) {
+    return HTTP.post(`tickets/categories`, ticketCategory).then(res => res.data);
   },
 
-  // Удаляет категорию проблемы по id
-  deleteProblemCategory(id) {
-    return HTTP.delete(`problemCategories/${id}`).then(res => res.data);
+  // Удаляет категорию проблемы
+  deleteTicketCategory(id) {
+    return HTTP.delete(`tickets/categories/${id}`).then(res => res.data);
   },
 
   // Возвращает комментарии к заявке
-  getCommentsForTicket(ticketId) {
-    return HTTP.get(`comments/ticket/${ticketId}`).then(res => res.data);
+  getTicketComments(ticketId) {
+    return HTTP.get(`tickets/${ticketId}/comments`).then(res => res.data);
   },
 
   // Создает комментарий
-  postComment(comment) {
-    return HTTP.post(`comments`, comment).then(res => res.data);
+  createTicketComment(ticketId, comment) {
+    return HTTP.post(`tickets/${ticketId}/comments`, comment).then(res => res.data);
   }
 }

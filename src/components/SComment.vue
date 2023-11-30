@@ -5,7 +5,7 @@ import httpCommon from "@/http-common";
 export default defineComponent({
   name: "SComment",
   props: {
-    userId: Number,
+    creatorId: Number,
     username: String,
     text: String,
     date: String
@@ -14,8 +14,8 @@ export default defineComponent({
     name: null
   }),
   created() {
-    if (this.userId !== undefined)
-      httpCommon.getUser(this.userId)
+    if (this.creatorId !== undefined)
+      httpCommon.getUser(this.creatorId)
           .then(user => this.name = user.name)
   }
 })

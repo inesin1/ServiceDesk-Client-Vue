@@ -2,9 +2,10 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import WaveUI from 'wave-ui/src/wave-ui'
 import router from './router'
-import store from './store'
+import { createPinia } from 'pinia'
 import components from '@/components';
 
+const pinia = createPinia()
 const app = createApp(App);
 
 components.forEach(c => {
@@ -13,6 +14,6 @@ components.forEach(c => {
 
 app
     .use(WaveUI, {theme: 'auto'})
-    .use(store)
+    .use(pinia)
     .use(router)
     .mount('#app')

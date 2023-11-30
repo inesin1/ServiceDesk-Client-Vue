@@ -43,9 +43,9 @@ export default defineComponent({
     },
     deleteSelectedItem() {
        switch (this.currentSetting.label) {
-         case 'Статусы': httpCommon.deleteStatus(this.currentSetting.table.selection.id); break;
-         case 'Роли': httpCommon.deleteRole(this.currentSetting.table.selection.id); break;
-         case 'Категории проблем': httpCommon.deleteProblemCategory(this.currentSetting.table.selection.id); break;
+         case 'Статусы': httpCommon.deleteTicketStatus(this.currentSetting.table.selection.id); break;
+         case 'Роли': httpCommon.deleteUserRole(this.currentSetting.table.selection.id); break;
+         case 'Категории проблем': httpCommon.deleteTicketCategory(this.currentSetting.table.selection.id); break;
        }
     },
     loadTable(tableName) {
@@ -56,7 +56,7 @@ export default defineComponent({
 
       switch (tableName) {
         case 'Статусы':
-          httpCommon.getStatuses().then(items => {
+          httpCommon.getTicketStatuses().then(items => {
             // Добавляем заголовки
             Object.keys(items[0]).forEach(key => this.currentSetting.table.headers.push({ label: key, key: key }));
 
@@ -65,7 +65,7 @@ export default defineComponent({
           });
           break;
         case 'Роли':
-          httpCommon.getRoles().then(items => {
+          httpCommon.getUserRoles().then(items => {
             // Добавляем заголовки
             Object.keys(items[0]).forEach(key => this.currentSetting.table.headers.push({ label: key, key: key }));
 
@@ -74,7 +74,7 @@ export default defineComponent({
           });
           break;
         case 'Категории проблем':
-          httpCommon.getProblemCategories().then(items => {
+          httpCommon.getTicketCategories().then(items => {
             // Добавляем заголовки
             Object.keys(items[0]).forEach(key => this.currentSetting.table.headers.push({ label: key, key: key }));
 

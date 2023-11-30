@@ -1,10 +1,15 @@
 <script>
 import {defineComponent} from 'vue'
 import httpCommon from "@/http-common";
-import store from "@/store";
+import {mapStores} from "pinia";
+import {useUserStore} from "@/stores/user";
+import SCreateUserDialog from "@/components/dialog-windows/SCreateUserDialog.vue";
+import SCreateTicketDialog from "@/components/dialog-windows/SCreateTicketDialog.vue";
+import SEditUserDialog from "@/components/dialog-windows/SEditUserDialog.vue";
 
 export default defineComponent({
   name: "UsersView",
+  components: {SEditUserDialog, SCreateTicketDialog, SCreateUserDialog},
   data: () => ({
     table: {
       headers: [
@@ -13,11 +18,12 @@ export default defineComponent({
         {label: 'Логин', key: 'login', sortable: false},
         {label: 'Пароль', key: 'password', sortable: false},
         {label: 'Роль', key: 'role', sortable: false},
-        {label: 'Отделение', key: 'department', sortable: false},
-        {label: 'Номер телефона', key: 'phone_number', sortable: false},
-        {label: 'Chat ID', key: 'chat_id', sortable: false},
+        {label: 'Отделения', key: 'departments', sortable: false},
+        {label: 'Номер телефона', key: 'phone', sortable: false},
+        {label: 'Chat ID', key: 'tg_chat_id', sortable: false},
       ],
       items: [],
+      loading: false,
       sort: '+id',
       selection: null,
       deleteButtonDisable: true
@@ -38,43 +44,6 @@ export default defineComponent({
       }
     },
 
-    createUserDialog: {
-      show: false,
-      fullscreen: false,
-      persistent: false,
-      persistentNoAnimation: false,
-      width: 1000,
-
-      form: {
-        valid: null,
-        submitted: false,
-        sent: false,
-        errorsCount: 0,
-        validators: {
-          required: value => !!value || 'Поле обязательно для заполнения!',
-          loginAvailable: async value => (await httpCommon.checkLoginAvailable(value)) === 'ok' || 'Логин занят'
-        },
-        buttonLoading: false,
-
-        fields: {
-          name: '',
-          login: '',
-          password: '',
-          role: {
-            value: 1,
-            items: [],
-            disable: true
-          },
-          department: {
-            value: '',
-            items: []
-          },
-          phone_number: '',
-          tg_chat_id: ''
-        }
-      }
-    },
-
     editUserDialog: {
       show: false,
       fullscreen: false,
@@ -82,36 +51,11 @@ export default defineComponent({
       persistentNoAnimation: false,
       width: 1000,
 
-      user: null,
+      userId: null,
+    },
 
-      form: {
-        valid: null,
-        submitted: false,
-        sent: false,
-        errorsCount: 0,
-        validators: {
-          required: value => !!value || 'Поле обязательно для заполнения!',
-          loginAvailable: async value => (await httpCommon.checkLoginAvailable(value)) === 'ok' || 'Логин занят'
-        },
-        buttonLoading: false,
-
-        fields: {
-          name: '',
-          login: '',
-          password: '',
-          role: {
-            value: 1,
-            items: [],
-            disable: true
-          },
-          department: {
-            value: '',
-            items: []
-          },
-          phone_number: '',
-          tg_chat_id: ''
-        }
-      }
+    createUserDialog: {
+      show: false,
     },
 
     uploadUsersDialog: {
@@ -134,41 +78,36 @@ export default defineComponent({
       }
     },
   }),
+  computed: {
+    ...mapStores(useUserStore)
+  },
   methods: {
     async loadUsers() {
+      this.table.loading = 'header'
       this.table.items = [];
-      const users = await httpCommon.getUsers();
-      for (const user of users) {
+
+      const users = await httpCommon.getUsers("departments");
+      users.map(user => {
         this.table.items.push(
             {
               id: user.id,
               name: user.name,
               login: user.login,
               password: user.password,
-              role: (await httpCommon.getRole(user.role.id)).name,
-              department: (await httpCommon.getDepartment(user.department.id)).name,
-              phone_number: user.phoneNumber,
+              role: user.role.name,
+              departments: user.departments.map(d => d.name),
+              phone: user.phone,
               tg_chat_id: user.tgChatId
             }
         )
-      }
+      })
+
+      this.table.loading = false
     },
 
     // Открывает диалоговое окно создания пользователя
-    async openCreateUserDialog() {
+    openCreateUserDialog() {
       this.createUserDialog.show = true;
-
-      this.createUserDialog.form.fields.role.items = [];
-      (await httpCommon.getRoles()).forEach((role => this.createUserDialog.form.fields.role.items.push({
-        label: role.name,
-        value: role.id
-      })));
-
-      this.createUserDialog.form.fields.department.items = [];
-      (await httpCommon.getDepartments()).forEach((department => this.createUserDialog.form.fields.department.items.push({
-        label: department.name,
-        value: department.id
-      })))
     },
 
     // Открывает диалоговое окно загрузки пользователей
@@ -179,70 +118,7 @@ export default defineComponent({
     // Обрабатывает событие выбора пользователя
     rowSelection(event) {
       this.editUserDialog.show = true;
-      this.editUserDialog.user = event.item;
-    },
-
-    // Удаляет выбранную запись
-    deleteSelectedItem() {
-      httpCommon.deleteUser(this.table.selection.id)
-    },
-
-    // Вызывается при успешной проверке формы создания
-    createUserFormOnSuccess () {
-      this.createUserDialog.form.buttonLoading = true;
-      this.createUserDialog.form.sent = true
-
-      httpCommon.postUser({
-        name: this.createUserDialog.form.fields.name,
-        login: this.createUserDialog.form.fields.login,
-        password: this.createUserDialog.form.fields.password,
-        roleId: this.createUserDialog.form.fields.role.value,
-        departmentId: this.createUserDialog.form.fields.department.value,
-        phoneNumber: this.createUserDialog.form.fields.phone_number,
-        tgChatId: this.createUserDialog.form.fields.tg_chat_id,
-      })
-          .then( response => {
-            this.createUserDialog.show = false;
-            this.$waveui.notify('Пользователь успешно создан!', 'success');
-            this.loadUsers();
-          })
-          .catch(error => this.$waveui.notify('При создании пользователя произошла ошибка: ' + error.message, 'error'))
-          .finally(this.createUserDialog.form.buttonLoading = false);
-    },
-
-    // Вызывается при проверке полей формы создания
-    createUserFormOnValidate () {
-      this.createUserDialog.form.sent = false
-      this.createUserDialog.form.submitted = this.createUserDialog.form.errorsCount === 0
-    },
-
-    // Вызывается при успешной проверке формы редактирования
-    async editUserFormOnSuccess() {
-      this.editUserDialog.form.buttonLoading = true;
-      this.editUserDialog.form.sent = true
-
-      let user = (await httpCommon.getUser(this.editUserDialog.user.id));
-
-      httpCommon.putUser(this.editUserDialog.user.id, {
-        name: this.editUserDialog.user.name,
-        login: this.editUserDialog.user.login,
-        password: this.editUserDialog.user.password,
-        roleId: user.roleId,
-        departmentId: user.departmentId,
-        phoneNumber: this.editUserDialog.user.phone_number,
-        tgChatId: this.editUserDialog.user.tg_chat_id,
-      })
-          .then(response => {
-            this.editUserDialog.show = false;
-            //this.loadUsers();
-          })
-          .catch(error => this.$waveui.notify('При редактировании пользователя произошла ошибка: ' + error.message, 'error'))
-    },
-
-    // Вызывается при проверке полей формы редактирования
-    editUserFormOnValidate () {
-      this.editUserDialog.form.sent = false
-      this.editUserDialog.form.submitted = this.editUserDialog.form.errorsCount === 0
+      this.editUserDialog.userId = event.item.id;
     },
 
     // Вызывается при успешной проверке формы создания
@@ -270,10 +146,6 @@ export default defineComponent({
   },
   created() {
     this.loadUsers();
-
-    if (store.getters.getUserRole == 3)
-      this.createUserDialog.form.fields.role.disable = false;
-      this.editUserDialog.form.fields.role.disable = false;
   }
 })
 </script>
@@ -292,6 +164,7 @@ export default defineComponent({
       </w-button>
       <w-button
           bg-color="success"
+          disabled
           @click="openUploadUsersDialog">
         Загрузить
       </w-button>
@@ -304,19 +177,16 @@ export default defineComponent({
     <w-table
         :headers="table.headers"
         :items="table.items"
-        :pagination="table.pagination"
+        :loading="table.loading"
         selectable-rows="1"
         @row-select="rowSelection($event)"
         fixed-headers
         style="height: 500px"
         :filter="filter.keywordFilter(filter)"
         v-model:sort="table.sort"
-        mobile-breakpoint="700">
+        :mobile-breakpoint="700">
       <template #no-data>
-        <w-flex justify-center>
-          <w-spinner bounce />
-          <div class="align-self-center ml2">Загрузка</div>
-        </w-flex>
+        <div class="align-self-center ml2">Нет данных</div>
       </template>
       <template #header-label="{ label, index }">
         <w-input outline placeholder="Поиск..." inner-icon-left="wi-search" v-model="filter.keyword[index]" class="mb2"></w-input>
@@ -326,155 +196,19 @@ export default defineComponent({
   </w-card>
 
   <!--Диалоговое окно создания пользователя-->
-  <w-dialog
-      v-model="createUserDialog.show"
-      :fullscreen="createUserDialog.fullscreen"
-      :width="createUserDialog.width"
-      :persistent="createUserDialog.persistent"
-      :persistent-no-animation="createUserDialog.persistentNoAnimation"
-      @close="createUserDialog.form.valid = null"
-      title-class="primary-light1--bg black"
-      >
-    <template #title>
-      <w-icon class="mr2">mdi mdi-pencil-outline</w-icon>
-      Создать пользователя
-    </template>
-
-    <div class="message-box">
-      <w-transition-fade>
-        <w-alert
-            v-if="createUserDialog.form.valid === false"
-            error
-            no-border
-            class="my0 text-light">
-          Имеются ошибки
-        </w-alert>
-      </w-transition-fade>
-    </div>
-
-    <w-form
-        v-model="createUserDialog.form.valid"
-        v-model:errors-count="createUserDialog.form.errorsCount"
-        @validate="createUserFormOnValidate"
-        @success="createUserFormOnSuccess"
-        ref="createUserForm"
-        class="my2 mx4"
-        >
-
-      <w-input v-model="createUserDialog.form.fields.name" :validators="[createUserDialog.form.validators.required]">ФИО</w-input>
-      <w-input v-model="createUserDialog.form.fields.login" :validators="[createUserDialog.form.validators.required, createUserDialog.form.validators.loginAvailable]">Логин</w-input>
-      <w-input v-model="createUserDialog.form.fields.password" :validators="[createUserDialog.form.validators.required]">Пароль</w-input>
-      <w-select
-          v-model="createUserDialog.form.fields.role.value"
-          :items="createUserDialog.form.fields.role.items"
-          label="Роль"
-          :validators="[createUserDialog.form.validators.required]"
-          class="my4"
-          :disabled="createUserDialog.form.fields.role.disable"
-      ></w-select>
-      <w-select
-          v-model="createUserDialog.form.fields.department.value"
-          :items="createUserDialog.form.fields.department.items"
-          label="Отделение"
-          :validators="[createUserDialog.form.validators.required]"
-          class="my4"
-      ></w-select>
-      <w-input v-model="createUserDialog.form.fields.phone_number">Номер телефона</w-input>
-      <w-input v-model="createUserDialog.form.fields.tg_chat_id">Telegram Chat ID</w-input>
-
-    </w-form>
-
-    <template #actions>
-      <div class="spacer"/>
-      <w-button
-          @click="$refs.createUserForm.validate()"
-          class="mr3"
-          :loading="createUserDialog.form.buttonLoading"
-      >
-        Создать
-      </w-button>
-      <w-button @click="createUserDialog.show = false">Отмена</w-button>
-    </template>
-  </w-dialog>
+  <s-create-user-dialog
+    :show="createUserDialog.show"
+    @loadUsers="loadUsers"
+    @close="createUserDialog.show = false"
+  />
 
   <!--Диалоговое окно редактирования пользователя-->
-  <w-dialog
-      v-model="editUserDialog.show"
-      :fullscreen="editUserDialog.fullscreen"
-      :width="editUserDialog.width"
-      :persistent="editUserDialog.persistent"
-      :persistent-no-animation="editUserDialog.persistentNoAnimation"
-      @close="editUserDialog.form.valid = null"
-      title-class="primary-light1--bg black"
-  >
-    <template #title>
-      <w-icon class="mr2">mdi mdi-pencil-outline</w-icon>
-      Редактирование пользователя
-    </template>
-
-    <div class="message-box">
-      <w-transition-fade>
-        <w-alert
-            v-if="editUserDialog.form.valid === false"
-            error
-            no-border
-            class="my0 text-light">
-          Имеются ошибки
-        </w-alert>
-      </w-transition-fade>
-    </div>
-
-    <w-form
-        v-model="editUserDialog.form.valid"
-        v-model:errors-count="editUserDialog.form.errorsCount"
-        @validate="editUserFormOnValidate"
-        @success="editUserFormOnSuccess"
-        ref="editUserForm"
-        class="my2 mx4"
-    >
-
-      <w-input v-model="editUserDialog.user.name" :validators="[editUserDialog.form.validators.required]">ФИО</w-input>
-      <w-input v-model="editUserDialog.user.login" :validators="[editUserDialog.form.validators.required, editUserDialog.form.validators.loginAvailable]">Логин</w-input>
-      <w-input v-model="editUserDialog.user.password" :validators="[editUserDialog.form.validators.required]">Пароль</w-input>
-      <w-input v-model="editUserDialog.user.role" readonly>Роль</w-input>
-      <w-input v-model="editUserDialog.user.department" readonly>Отделение</w-input>
-<!--      <w-select
-          v-model="editUserDialog.user.role"
-          :items="editUserDialog.form.fields.role.items"
-          label="Роль"
-          :validators="[editUserDialog.form.validators.required]"
-          class="my4"
-          :disabled="editUserDialog.form.fields.role.disable"
-      ></w-select>
-      <w-select
-          v-model="editUserDialog.user.department"
-          :items="editUserDialog.form.fields.department.items"
-          label="Отделение"
-          :validators="[editUserDialog.form.validators.required]"
-          class="my4"
-      ></w-select>-->
-      <w-input v-model="editUserDialog.user.phoneNumber">Номер телефона</w-input>
-      <w-input v-model="editUserDialog.user.tgChatId">Telegram Chat ID</w-input>
-
-    </w-form>
-
-    <template #actions>
-      <div class="spacer"/>
-      <w-button
-          bg-color="error"
-          @click="deleteSelectedItem()">
-        Удалить
-      </w-button>
-      <w-button
-          @click="$refs.editUserForm.validate()"
-          class="mx3"
-          :loading="editUserDialog.form.buttonLoading"
-      >
-        Сохранить
-      </w-button>
-      <w-button @click="editUserDialog.show = false">Отмена</w-button>
-    </template>
-  </w-dialog>
+  <s-edit-user-dialog
+    v-if="editUserDialog.show"
+    :user-id="editUserDialog.userId"
+    @loadUsers="loadUsers"
+    @close="editUserDialog.show = false"
+  />
 
   <!--Диалоговое окно загрузки пользователей-->
   <w-dialog
@@ -506,7 +240,7 @@ export default defineComponent({
           class="mt6 mb4">
         Нажмите для выбора файла
       </w-input>
-      <w-checkbox v-if="$store.getters.getUserRole == 3" v-model="uploadUsersDialog.form.fields.rewrite" >Перезаписать <br><div class="caption">Полная очистка базы перед записью</div></w-checkbox>
+      <w-checkbox v-if="userStore.user.role.id == 3" v-model="uploadUsersDialog.form.fields.rewrite" >Перезаписать <br><div class="caption">Полная очистка базы перед записью</div></w-checkbox>
     </w-form>
 
     <template #actions>

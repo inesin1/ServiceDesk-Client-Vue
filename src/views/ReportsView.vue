@@ -60,13 +60,13 @@ export default defineComponent({
       for (const ticket of tickets) {
         this.table.items.push({
           id: ticket.id,
-          category: (await httpCommon.getProblemCategory(ticket.categoryId)).name,
+          category: (await httpCommon.getTicketCategory(ticket.categoryId)).name,
           creator: (await httpCommon.getUser(ticket.creatorId)).name,
           executor: ticket.executorId !== undefined ? (await httpCommon.getUser(ticket.executorId)).name : 'Не назначен',
           create_date: this.formatDateTime(ticket.createDate),
           close_date: ticket.closeDate !== undefined ? this.formatDateTime(ticket.closeDate) : '-',
           time_limit: this.formatDateTime(ticket.timeLimit),
-          status: (await httpCommon.getStatus(ticket.statusId)).name
+          status: (await httpCommon.getTicketStatus(ticket.statusId)).name
         });
       }
 
@@ -79,7 +79,7 @@ export default defineComponent({
       this.filter.executor.items = [];
       this.filter.status.items = [];
 
-      httpCommon.getProblemCategories().then( problemCategories => {
+      httpCommon.getTicketCategories().then(problemCategories => {
         this.filter.category.items.push({ label: 'Все', value: 'Все' })
         problemCategories.forEach( problemCategory => this.filter.category.items.push({ label: problemCategory.name, value: problemCategory.name }) )
       });
@@ -91,7 +91,7 @@ export default defineComponent({
         this.filter.executor.items.push({ label: 'Все', value: 'Все' })
         users.filter(user => user.roleId == 2).forEach( user => this.filter.executor.items.push({ label: user.name, value: user.name }) )
       });
-      httpCommon.getStatuses().then( statuses => {
+      httpCommon.getTicketStatuses().then(statuses => {
         this.filter.status.items.push({ label: 'Все', value: 'Все' })
         statuses.forEach( status => this.filter.status.items.push({ label: status.name, value: status.name }) )
       });

@@ -52,8 +52,9 @@
 </template>
 
 <script>
-import store from "@/store";
 import http from "@/http-common";
+import {mapStores} from "pinia";
+import {useUserStore} from "@/stores/user";
 
 export default {
   name: "AuthView",
@@ -74,12 +75,17 @@ export default {
       password: ''
     }
   }),
-  
+  computed: {
+    ...mapStores(useUserStore)
+  },
   methods: {
     onSuccess () {
       this.form.sent = true;
-      http.postAuth(this.authData)
-          .then(response => { store.commit('setUser', response); http.updateOptions();})
+      http.auth(this.authData)
+          .then(response => {
+            this.userStore.setUser(response.user, response.token);
+            http.updateOptions();
+          })
           .catch(error => {
             this.form.valid = false;
 

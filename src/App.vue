@@ -1,13 +1,13 @@
 <template>
-    <s-header/>
+  <s-header/>
     <w-flex grow>
-        <s-aside class="sm-hide" v-if="store.getters.isAuthenticated"/>
-        <main class="grow">
-            <router-view v-if="$store.getters.isAuthenticated"></router-view>
-            <auth-view v-else/>
-        </main>
+      <s-aside class="sm-hide" v-if="userStore.isAuthenticated"/>
+      <main class="grow">
+        <router-view v-if="userStore.isAuthenticated"></router-view>
+        <auth-view v-else/>
+      </main>
     </w-flex>
-    <footer>По вопросам работы сайта: +7 (908) 047 4215, Несин Артём Игоревич, Программист</footer>
+  <footer>По вопросам работы сайта: +7 (908) 047 4215, Несин Артём Игоревич, Программист</footer>
 </template>
 
 <style>
@@ -18,17 +18,17 @@
 
 <script>
 import AuthView from "@/views/AuthView.vue";
-import store from "@/store";
 import httpCommon from "@/http-common";
+import SHeader from "@/components/SHeader.vue";
+import SAside from "@/components/SAside.vue";
+import {useUserStore} from "@/stores/user";
+import {mapStores} from "pinia";
 export default {
   computed: {
-    store() {
-      return store
-    }
+    ...mapStores(useUserStore)
   },
-  components: {AuthView},
+  components: {SAside, SHeader, AuthView},
   created() {
-    //store.commit('setUser', {id:1, name: 'admin', role: 3, token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJteUFwcCIsImlzcyI6Im15QXBwIiwiaWQiOjF9.CABQOGsBBVAnJPMgbh4rdahnUVZFV6iZUY7tN7uzs1U'});
     httpCommon.updateOptions();
   }
 }

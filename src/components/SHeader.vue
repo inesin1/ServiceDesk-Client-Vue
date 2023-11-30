@@ -16,24 +16,25 @@
 
             <w-menu
                     shadow
-                    v-if="$store.getters.isAuthenticated">
+                    v-if="userStore.isAuthenticated">
                 <template
                         #activator="{ on }">
                     <w-button
                             v-on="on"
                             text>
-                        {{$store.state.user.name}}
+                        {{userStore.user.name}}
                     </w-button>
                 </template>
-                <w-button text @click="$router.push('/profile/' + $store.getters.getCurrentUser.id)" >Профиль</w-button>
-                <w-button text @click="$store.commit('logout')">Выход</w-button>
+                <w-button text @click="$router.push('/profile/' + userStore.user.id)" >Профиль</w-button>
+                <w-button text @click="userStore.logout">Выход</w-button>
             </w-menu>
         </w-toolbar>
     </header>
 </template>
 
 <script>
-import {watch} from "vue";
+import {mapStores} from "pinia";
+import {useUserStore} from "@/stores/user";
 
 export default {
   name: "s-header",
@@ -43,6 +44,9 @@ export default {
         value: this.$waveui.theme === 'dark'
       }
     }
+  },
+  computed: {
+    ...mapStores(useUserStore)
   },
   watch: {
     "themeSwitch.value" (value) {

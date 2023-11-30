@@ -6,27 +6,27 @@
     </s-aside-button>
     <s-aside-button
         router-link="/users"
-        v-if="userRole == 2 || userRole == 3">
+        v-if="userStore.user.role.id === 2 || userStore.user.role.id === 3">
       Пользователи
     </s-aside-button>
     <s-aside-button
-        router-link="/vnc"
-        v-if="userRole == 2 || userRole == 3">
-      VNC
+        router-link="/computers"
+        v-if="userStore.user.role.id === 2 || userStore.user.role.id === 3">
+      Компьютеры
     </s-aside-button>
     <s-aside-button
         router-link="/knowledge"
-        v-if="userRole == 2 || userRole == 3">
+        v-if="userStore.user.role.id === 2 || userStore.user.role.id === 3">
       База знаний
     </s-aside-button>
     <s-aside-button
         router-link="/reports"
-        v-if="userRole == 3">
+        v-if="userStore.user.role.id === 3">
       Отчеты
     </s-aside-button>
     <s-aside-button
         router-link="/settings"
-        v-if="userRole == 3">
+        v-if="userStore.user.role.id === 3">
       Настройки
     </s-aside-button>
 
@@ -48,14 +48,13 @@
 
 <script>
 import SAsideButton from "@/components/UI/SAsideButton.vue";
-import store from "@/store";
+import { useUserStore } from "@/stores/user";
+import {mapStores} from "pinia";
 
 export default {
   name: "SAside",
   computed: {
-    userRole() {
-      return store.getters.getUserRole;
-    }
+    ...mapStores(useUserStore)
   },
   components: {SAsideButton},
 }

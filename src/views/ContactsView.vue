@@ -63,6 +63,14 @@ export default defineComponent({
           contacts="+7 (900) 023-38-68"
       />
 
+      <w-divider/>
+
+      <SContactItem
+          job="Системный администратор"
+          name="Володин Матвей Андреевич"
+          contacts="+7 (908) 074-05-45"
+      />
+
       <div class="title3 mt8">Подразделение 3</div>
       <div class="body">Адрес: Бушуева, д. 16</div>
 
@@ -81,8 +89,8 @@ export default defineComponent({
 
       <SContactItem
           job="Программист"
-          name="Асаев Эльдар Римонович"
-          contacts="+7 (999) 588-77-05"
+          name="Власов Тимофей Вячеславович"
+          contacts="+7 (912) 389-81-05"
       />
 
       <div class="title3 mt8">Подразделение 5</div>
