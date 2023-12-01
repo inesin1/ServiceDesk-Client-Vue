@@ -123,6 +123,15 @@ export default {
       this.table.items = [];
       this.table.pagination.total = await httpCommon.getTicketsCount()
 
+      if (!localStorage.getItem('ticketsFilter')) {
+        localStorage.setItem('ticketsFilter', JSON.stringify({
+          statuses: [],
+          categories: [],
+          creators: [],
+          executors: [],
+          departments: [],
+        }))
+      }
       const filter = JSON.parse(localStorage.getItem('ticketsFilter'))
 
       const tickets = await httpCommon.getTickets(start - 1, itemsPerPage, filter);
