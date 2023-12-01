@@ -72,7 +72,7 @@ export default defineComponent({
            creatorId: this.form.fields.creator.value,
            sourceId: this.form.fields.source.value,
            categoryId: this.form.fields.category.value,
-           details: this.form.details
+           details: this.form.fields.details
          })
 
          this.$waveui.notify('Заявка успешно создана!', 'success');
@@ -110,6 +110,7 @@ export default defineComponent({
         value: u.id
       }
     })
+    this.form.fields.creator.items.sort((a, b) => ('' + a.label).localeCompare(b.label))
 
     this.form.fields.creator.value = this.userStore.user.id
     if (this.userStore.user.role.id === 3) {

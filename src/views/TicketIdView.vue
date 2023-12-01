@@ -9,7 +9,7 @@
           <!--Панель управления-->
           <w-flex gap="4">
             <w-button
-                v-if="ticket.executor === null && userStore.user.role.id === 2"
+                v-if="ticket.executor === undefined && userStore.user.role.id !== 1"
                 bg-color="success"
                 class="align-self-start"
                 @click="setExecutor(userStore.user.id)">
@@ -263,8 +263,6 @@ export default {
     this.loadComments();
     this.loadExecutors();
     //this.loadStatuses();
-
-    console.log(this.userStore.user)
   }
 }
 </script>

@@ -147,7 +147,7 @@ export default {
   async created() {
     try {
       const userId = this.$route.params.id
-      this.user = await httpCommon.getUser(userId)
+      this.user = await httpCommon.getUser(userId, "departments")
       this.user.departments = this.user.departments.map(d => d.id)
 
       // load user roles

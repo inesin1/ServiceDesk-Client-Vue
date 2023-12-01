@@ -24,10 +24,14 @@ export default {
         'tickets',
         {
           params: {
-                offset: offset,
-                limit: limit,
-                ...filter
-          }
+            offset: offset,
+            limit: limit,
+            statuses: filter.statuses.join(','),
+            departments: filter.departments.join(','),
+            categories: filter.categories.join(','),
+            creators: filter.creators.join(','),
+            executors: filter.executors.join(','),
+          },
         })
         .then(res => res.data);
   },

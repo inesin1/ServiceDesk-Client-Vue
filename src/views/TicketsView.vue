@@ -12,13 +12,21 @@
             @click="loadTickets(table.pagination)">
           <w-icon>mdi mdi-reload</w-icon>
         </w-button>
+        <w-button
+            @click="this.showFilter = !this.showFilter">
+          Фильтр
+        </w-button>
       </w-flex>
 
       <!-- Фильтр -->
-      <s-tickets-filter
-        @apply="applyFilter"
-      />
+      <w-transition-slide down>
+        <s-tickets-filter
+            v-if="showFilter"
+            @apply="loadTickets(table.pagination)"
+        />
+      </w-transition-slide>
 
+      <!--          :filter="filterView.keywordFilter(filterView)"-->
       <w-table
           :headers="table.headers"
           :items="table.items"
@@ -30,12 +38,12 @@
           fixed-headers
           style="height: 530px"
           v-model:sort="table.sort"
-          :filter="filterView.keywordFilter(filterView)"
-          :mobile-breakpoint="700">
-        <template #header-label="{ label, index }">
+          :mobile-breakpoint="700"
+      >
+<!--        <template #header-label="{ label, index }">
           <w-input outline placeholder="Поиск..." inner-icon-left="wi-search" v-model="filterView.keyword[index]" class="mb2"></w-input>
           {{ label }}
-        </template>
+        </template>-->
         <template #no-data>
           <div class="align-self-center ml2">Нет данных</div>
         </template>
@@ -104,7 +112,9 @@ export default {
     // Диалоговое окно создания заявки
     createTicketDialog: {
       show: false
-    }
+    },
+
+    showFilter: false
   }),
   methods: {
     // Загружает заявки
@@ -114,6 +124,7 @@ export default {
       this.table.pagination.total = await httpCommon.getTicketsCount()
 
       const filter = JSON.parse(localStorage.getItem('ticketsFilter'))
+
       const tickets = await httpCommon.getTickets(start - 1, itemsPerPage, filter);
       tickets.map(ticket => {
         this.table.items.push({

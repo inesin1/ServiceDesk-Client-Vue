@@ -13,7 +13,15 @@ components.forEach(c => {
 })
 
 app
-    .use(WaveUI, {theme: 'auto'})
+    .use(
+        WaveUI,
+        {
+            theme:
+                localStorage.getItem('theme') != null ?
+                    localStorage.getItem('theme')
+                    :
+                    'auto'
+        })
     .use(pinia)
     .use(router)
     .mount('#app')

@@ -3,7 +3,7 @@
         <w-toolbar shadow class="py2">
             <w-icon color="light-blue-dark3 mr3" size="3em">mdi mdi-help-box-multiple-outline</w-icon>
             <div class="headline">Сервис Деск</div>
-            <div class="caption align-self-center ml2">v1.3.1</div>
+            <div class="caption align-self-center ml2">2.0.0</div>
             <div class="spacer"></div>
 
           <w-switch v-model="themeSwitch.value" class="ma4">
@@ -52,8 +52,11 @@ export default {
     "themeSwitch.value" (value) {
       if (value) {
         this.$waveui.switchTheme('dark')
-      } else
+        localStorage.setItem('theme', 'dark')
+      } else {
         this.$waveui.switchTheme('light')
+        localStorage.setItem('theme', 'light')
+      }
     }
   }
 }

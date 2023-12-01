@@ -27,8 +27,6 @@ export default defineComponent({
         items: []
       },
     },
-
-    loading: false
   }),
   methods: {
     apply() {
@@ -39,53 +37,91 @@ export default defineComponent({
         executors: this.fields.executors.value,
         departments: this.fields.departments.value,
       }))
+
+      this.$emit('apply')
+    },
+
+    reset() {
+      this.fields.categories.value = [];
+      this.fields.statuses.value = [];
+      this.fields.creators.value = [];
+      this.fields.executors.value = [];
+      this.fields.departments.value = [];
+      this.apply();
     }
   },
   async created() {
+    if (!localStorage.getItem('ticketsFilter')) {
+      localStorage.setItem('ticketsFilter', JSON.stringify({
+        statuses: [],
+        categories: [],
+        creators: [],
+        executors: [],
+        departments: [],
+      }))
+    }
+
+    const filterValues = JSON.parse(localStorage.getItem('ticketsFilter'))
+
     // load categories
     const categories = await httpCommon.getTicketCategories()
-    this.fields.categories.items = categories.map(c => {
-      return {
-        label: c.name,
-        value: c.id
-      }
-    })
+    this.fields.categories = {
+      value: filterValues.categories,
+      items: categories.map(c => {
+        return {
+          label: c.name,
+          value: c.id
+        }
+      })
+    }
 
     //load creators
     const users = await httpCommon.getUsers()
-    this.fields.creators.items = users.map(u => {
-      return {
-        label: u.name,
-        value: u.id
-      }
-    })
+    this.fields.creators = {
+      value: filterValues.creators,
+      items: users.map(u => {
+        return {
+          label: u.name,
+          value: u.id
+        }
+      })
+    }
 
     //load executors
     const executors = await httpCommon.getUsersIT()
-    this.fields.executors.items = executors.map(e => {
-      return {
-        label: e.name,
-        value: e.id
-      }
-    })
+    this.fields.executors = {
+      value: filterValues.executors,
+      items: executors.map(e => {
+        return {
+          label: e.name,
+          value: e.id
+        }
+      })
+    }
 
     //load departments
     const departments = await httpCommon.getDepartments()
-    this.fields.departments.items = departments.map(d => {
-      return {
-        label: d.name,
-        value: d.id
-      }
-    })
+    this.fields.departments = {
+      value: filterValues.departments,
+      items: departments.map(d => {
+        return {
+          label: d.name,
+          value: d.id
+        }
+      })
+    }
 
     //load statuses
     const statuses = await httpCommon.getTicketStatuses()
-    this.fields.statuses.items = statuses.map(s => {
-      return {
-        label: s.name,
-        value: s.id
-      }
-    })
+    this.fields.statuses = {
+      value: filterValues.statuses,
+      items: statuses.map(s => {
+        return {
+          label: s.name,
+          value: s.id
+        }
+      })
+    }
   }
 })
 </script>
@@ -97,7 +133,7 @@ export default defineComponent({
       class="mb4"
   >
     <w-form
-        class="my2 mx4"
+        class="w-flex column gap4"
     >
       <w-select
           v-model="fields.categories.value"
@@ -151,9 +187,17 @@ export default defineComponent({
       <w-button
           @click="apply"
           class="mr3"
-          :loading="loading"
+          bg-color="success"
       >
         Применить
+      </w-button>
+
+      <w-button
+          @click="reset"
+          class="mr3"
+          bg-color="error"
+      >
+        Сбросить
       </w-button>
     </template>
   </w-card>
