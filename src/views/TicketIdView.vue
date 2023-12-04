@@ -33,7 +33,7 @@
             </div>
 
             <w-button
-                v-if="ticket.statusId == 3 && ticket.executorId === userStore.user.id && userStore.user.role.id !== 1"
+                v-if="ticket.status.id === 3 && ticket.executor.id === userStore.user.id && userStore.user.role.id !== 1"
               bg-color="success"
               @click="closeTicket"
             >
@@ -241,9 +241,9 @@ export default {
     async setExecutor(executorId) {
       try {
         await httpCommon.putTicketToWork(this.ticket.id, executorId)
+        await this.loadTicketData()
         this.createSystemComment(`Назначен исполнитель: ${this.ticket.executor.name}`)
         this.$waveui.notify('Исполнитель назначен!', 'success');
-        await this.loadTicketData()
       } catch (e) {
         console.log(`Произошла ошибка: ${e.message}`);
         this.$waveui.notify(`Произошла ошибка: ${e.message}`, 'error')
