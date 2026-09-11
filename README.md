@@ -25,4 +25,4 @@ The dev server listens on port 10011 and proxies `/api` to `http://localhost:100
 
 ## Deployment
 
-`Dockerfile` builds the bundle and serves it with nginx, which also proxies `/api` to the backend.
+`Dockerfile` builds the bundle and serves it with nginx. nginx proxies `/api` to the address in `API_URL`, which defaults to `http://api:1002`.
