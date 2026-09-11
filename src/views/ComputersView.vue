@@ -1,21 +1,13 @@
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: "ComputersView"
+  name: 'ComputersView',
 })
 </script>
 
 <template>
-  <w-card
-      title="Компьютеры"
-      class="ma4"
-      bg-color="base-bg-color"
-  >
-
-  </w-card>
+  <w-card title="Компьютеры" class="ma4" bg-color="base-bg-color" />
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
