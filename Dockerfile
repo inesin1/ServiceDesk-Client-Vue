@@ -1,17 +1,17 @@
-# Сборка
-FROM node:lts-alpine as build-stage
+FROM node:22-alpine AS build
 
-WORKDIR /workdir/client
+WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
+
 COPY . .
 RUN npm run build
 
-# прод
-FROM nginx:stable-alpine as production-stage
+FROM nginx:stable-alpine
 
-COPY --from=build-stage /workdir/client/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
 
-EXPOSE 1001
-CMD [ "nginx", "-g", "daemon off;" ]
+ENV API_URL=http://api:1002
+
+EXPOSE 80
