@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import TicketsView from "@/views/TicketsView.vue";
-import TicketIdView from "@/views/TicketIdView.vue";
-import ProfileView from "@/views/ProfileView.vue";
-import UsersView from "@/views/UsersView.vue";
-import SettingsView from "@/views/SettingsView.vue";
-import ReportsView from "@/views/ReportsView.vue";
-import ContactsView from "@/views/ContactsView.vue";
-import NewsView from "@/views/NewsView.vue";
-import ComputersView from "@/views/ComputersView.vue";
-import KnowledgeView from "@/views/KnowledgeView.vue";
+import TicketsView from '@/views/TicketsView.vue'
+import TicketIdView from '@/views/TicketIdView.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import UsersView from '@/views/UsersView.vue'
+import SettingsView from '@/views/SettingsView.vue'
+import ReportsView from '@/views/ReportsView.vue'
+import ContactsView from '@/views/ContactsView.vue'
+import NewsView from '@/views/NewsView.vue'
+import ComputersView from '@/views/ComputersView.vue'
+import KnowledgeView from '@/views/KnowledgeView.vue'
 
 const routes = [
   { path: '/news', name: 'news', component: NewsView },
@@ -24,8 +24,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
 })
 
 export default router
