@@ -1,23 +1,27 @@
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: "SNewsItem",
+  name: 'SNewsItem',
   props: {
     title: String,
-    date: String
-  }
+    date: String,
+  },
 })
 </script>
 
 <template>
   <w-flex column>
-    <div class="caption">{{ date }}</div>
-    <div class="title2 mb2">{{ title }}</div>
-    <div class="body"><slot></slot></div>
+    <div class="caption">
+      {{ date }}
+    </div>
+    <div class="title2 mb2">
+      {{ title }}
+    </div>
+    <div class="body">
+      <slot />
+    </div>
   </w-flex>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,36 +1,39 @@
 <script>
-import {defineComponent} from 'vue'
-import httpCommon from "@/http-common";
+import { defineComponent } from 'vue'
+import httpCommon from '@/http-common'
 
 export default defineComponent({
-  name: "SComment",
+  name: 'SComment',
   props: {
     creatorId: Number,
     username: String,
     text: String,
-    date: String
+    date: String,
   },
   data: () => ({
-    name: null
+    name: null,
   }),
   created() {
     if (this.creatorId !== undefined)
-      httpCommon.getUser(this.creatorId)
-          .then(user => this.name = user.name)
-  }
+      httpCommon.getUser(this.creatorId).then((user) => (this.name = user.name))
+  },
 })
 </script>
 
 <template>
   <w-flex column class="gap2">
     <w-flex gap="2">
-      <div class="title5">{{ username !== undefined ? username : name }}</div>
-      <div class="caption align-self-end">{{ date }}</div>
+      <div class="title5">
+        {{ username !== undefined ? username : name }}
+      </div>
+      <div class="caption align-self-end">
+        {{ date }}
+      </div>
     </w-flex>
-    <div class="body">{{ text }}</div>
+    <div class="body">
+      {{ text }}
+    </div>
   </w-flex>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
