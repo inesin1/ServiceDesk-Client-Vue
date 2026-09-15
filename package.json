@@ -19,7 +19,7 @@
     "vue": "^3.5.42",
     "vue-router": "^5.3.1",
     "vue-table-to-excel": "^1.0.6",
-    "wave-ui": "^3.7.2"
+    "wave-ui": "^4.2.5"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.6",
