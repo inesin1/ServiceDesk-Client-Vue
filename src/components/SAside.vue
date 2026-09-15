@@ -30,8 +30,6 @@
     <w-divider />
 
     <s-aside-button router-link="/news"> Новости </s-aside-button>
-
-    <s-aside-button router-link="/contacts"> Контакты </s-aside-button>
   </w-toolbar>
 </template>
 
